@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>化工安全網</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Industrial/Chemical Theme Styles */
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f0fdfa; /* teal-50 for chemical vibe */
+            color: #111827;
+        }
+        
+        /* Black and Yellow Warning Stripes */
+        .bg-stripes {
+            background-image: repeating-linear-gradient(
+                -45deg,
+                #000000,
+                #000000 20px,
+                #eab308 20px,
+                #eab308 40px
+            );
+        }
+        
+        .border-stripes {
+            border: 4px solid;
+            border-image: repeating-linear-gradient(
+                -45deg,
+                #000 0,
+                #000 10px,
+                #eab308 10px,
+                #eab308 20px
+            ) 4;
+        }
+
+        /* E-Stop Button Pulsing Animation */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .e-stop-btn {
+            animation: pulse-red 2s infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ccfbf1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0d9488; /* teal-600 */
+            border-radius: 4px;
+        }
+        
+        canvas {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col items-center">
+
+    <!-- Header / Navigation -->
+    <header class="w-full bg-white border-b border-teal-600 sticky top-0 z-40 shadow-md">
+        <div class="h-2 w-full bg-stripes"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-teal-600 rounded flex items-center justify-center text-white font-bold text-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-teal-800 tracking-wider">化工安全網</h1>
+                    <p class="text-xs text-gray-500">Chemical & Process Safety Training</p>
+                </div>
+            </div>
+            
+            <!-- E-Stop Button -->
+            <button onclick="toggleModal('estop-modal')" class="e-stop-btn flex items-center justify-center w-16 h-16 bg-red-600 rounded-full border-4 border-amber-400 hover:bg-red-500 transition-colors active:scale-95 shadow-lg shadow-red-900/50">
+                <span class="text-white font-black text-sm text-center leading-tight">洩漏<br>通報</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        
+        <!-- Hero Section -->
+        <section class="bg-white rounded-lg p-6 md:p-10 border-stripes shadow-md relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">製程零事故，化災零容忍</h2>
+                <p class="text-gray-600 max-w-2xl text-lg">落實危害通識、能源隔離與防爆管理，保障每一位化工從業人員與廠區環境的絕對安全。</p>
+            </div>
+            <div class="absolute -right-20 -bottom-20 opacity-5 text-teal-900">
+                <svg class="w-96 h-96" fill="currentColor" viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            </div>
+        </section>
+
+        <!-- 1. Twelve Zones Section -->
+        <section>
+            <h3 class="text-2xl font-bold text-teal-800 mb-6 flex items-center gap-2">
+                <span class="bg-teal-600 w-2 h-8 block"></span>
+                化學廠十二大製程安全分區規範
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Zone 1 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">危害通識與 GHS</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【安全資料表 (SDS)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>所有危害性化學品必須備有最新版之 SDS，並放置於<span class="text-teal-600 font-bold">現場作業人員易於取得之處</span>。</li>
+                                <li>操作新化學品前，必須詳閱其物化特性、危害防護與急救措施。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【GHS 危害圖示與標示】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>所有儲存容器、管線及分裝瓶，必須張貼清晰的 GHS 危害圖示及警告標語。</li>
+                                <li>嚴禁將化學品裝入未標示或標示不符之容器（如寶特瓶）內。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 2 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">防爆區域與靜電防護</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【靜電跨接與接地 (Bonding & Grounding)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>輸送易燃液體或粉體時，管線、槽車與儲槽間必須確實進行<span class="text-amber-600 font-bold">等電位跨接與接地</span>。</li>
+                                <li>裝卸作業前應先完成接地，靜置規定時間後再進行開蓋或液位量測。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【防爆電氣與工具】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>防爆區域 (Hazardous Area) 內必須使用具備防爆認證 (Ex) 的電氣設備、燈具及通訊設備。</li>
+                                <li class="text-red-600 font-bold">嚴禁攜帶一般智慧型手機、打火機進入防爆區；應使用無火花工具 (如防爆銅扳手)。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 3 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">動火許可與火源管制</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【動火作業許可證】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>任何會產生火花或高溫的作業（如電銲、氣割、研磨），必須事先申請並核發「動火許可證」。</li>
+                                <li>現場需指派專職的防火監視員 (Fire Watch)，並配置滅火器及防火毯。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【氣體偵測要求】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>動火前必須進行氣體偵測，可燃性氣體濃度必須<span class="text-red-600 font-bold">嚴格低於爆炸下限 (LEL) 的 10% (或法規/廠規要求)</span>。</li>
+                                <li>作業期間應實施連續性氣體監測，一有異常立即停止動火。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 4 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">反應槽與局限空間作業</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【入槽前置作業】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>進入儲槽或反應器前，必須先進行排空、清洗，並確實加裝實體「盲板」隔離相連管線。</li>
+                                <li>進入前必須實施四用氣體偵測 (確認 O2 > 18%)，並<span class="text-teal-600 font-bold">啟動強制通風換氣</span>。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【監視與救援機制】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>人孔外必須指派「缺氧監視人員」全程駐守，保持通訊。</li>
+                                <li class="text-red-600 font-bold">救援禁忌：若內部人員昏倒，外部人員絕對禁止在未配戴「SCBA自給式呼吸器」的情況下貿然進入救援。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 5 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">管線拆卸與盲板作業</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【殘壓排放與排氣 (Bleed & Vent)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>進行管線拆卸 (Line Breaking) 前，必須確認管內流體已排空、降壓至常壓，並完成沖洗置換。</li>
+                                <li>依規定申請「管線拆卸許可證」。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【法蘭拆卸安全技巧】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>鬆開法蘭螺絲時，<span class="text-teal-600 font-bold">必須從背對自己 (身體反方向) 的螺絲先鬆開</span>，且僅先鬆開不取下。</li>
+                                <li>此防護措施可確保若管內仍有殘留壓力或腐蝕性液體，噴濺方向會朝外，避免人員顏面受創。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 6 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">腐蝕性與劇毒物質防護</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【緊急沖淋與洗眼設備】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>強酸鹼、腐蝕性物質作業區，必須設置緊急沖淋及洗眼設備，且距離應在<span class="text-amber-600 font-bold">10 秒內 (約 15 公尺) 可到達</span>之處。</li>
+                                <li>若遭強酸鹼噴濺，應立即使用大量清水持續沖洗至少 15 分鐘，並褪去污染衣物。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【特殊毒性防護 (如氟化氫 HF)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>接觸氫氟酸 (HF) 等劇毒物質需穿著 A 級/B 級防護衣，並備妥解毒劑 (如葡萄糖酸鈣藥膏)。</li>
+                                <li>嚴密監控，嚴禁單人作業。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 7 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">能源隔離與 LOTO 上鎖掛牌</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【上鎖掛牌 (Lockout/Tagout)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>設備維修前，必須關閉所有動力來源（電氣、氣動、液壓及管線閥門），並由作業人員<span class="text-teal-600 font-bold">親自上鎖並掛上警示牌</span>。</li>
+                                <li>若有多人共同作業，必須使用「多孔鎖扣 (Hasp)」，每人掛上自己的安全鎖。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【殘能釋放與零電位驗證】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>上鎖後，必須釋放殘餘壓力（如打開洩氣閥），並進行試車(Try)或驗電，確保設備處於真正的「零能量狀態」。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 8 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">洩漏防堵與環境保護</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【防溢堤 (Dike) 與防堵設施】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>化學儲槽區必須設置防溢堤，其容量通常需<span class="text-teal-600 font-bold">大於最大儲槽容量之 110%</span>。</li>
+                                <li>防溢堤排放閥平時必須保持「常閉」狀態。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【洩漏應變包 (Spill Kit)】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>現場應配置吸油索、化學吸收棉及沙包等緊急防堵器材。</li>
+                                <li>洩漏發生時，應先阻止源頭（如關閉緊急遮斷閥 ESDV），再圍堵液體流向雨水溝。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 9 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">廢液處理與相容性管理</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【廢液分類與儲存】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>廢液必須依據危害特性（有機、無機、酸、鹼、重金屬）嚴格分類儲存。</li>
+                                <li>儲存區需保持通風，避免高溫，並設有洩漏防護托盤。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【禁忌物質隔離】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><span class="text-red-600 font-bold">不相容化學品（如強酸與強鹼、氧化劑與有機溶劑）絕對禁止混放</span>，以免引發放熱、起火或產生毒氣。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 10 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">個人防護裝備 (PPE)</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【呼吸防護具】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>處理有機溶劑需配戴適當濾毒罐之防毒面罩（定期更換）。</li>
+                                <li>若發生不明氣體洩漏或進入缺氧環境，<span class="text-amber-600 font-bold">必須使用 SCBA (自給式呼吸器)</span>，嚴禁使用過濾式面罩。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【化學防護衣物】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>依危害等級選擇 A、B、C、D 級化學防護衣。</li>
+                                <li>處理酸鹼作業應配戴護目鏡、防酸鹼手套與橡膠圍裙，褲管需包覆於雨鞋外，防止液體流入。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 11 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">安全標示與管線識別</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【廠區安全警示標誌】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>現場應依規設置清晰的四大標誌：禁止(紅圓斜線)、警告(黃三角)、指令(藍圓)及提示(綠方塊)。</li>
+                                <li>動線、逃生出口及緊急沖淋設備應設有夜光或獨立照明指示。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-gray-900 font-bold mb-1 border-b border-gray-200 pb-1">【管線顏色與流向標示】</h5>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>管線應依流體性質塗色區分（如：<span class="text-amber-600 font-bold">黃色代表易燃/可燃性流體</span>、紅色代表消防用水、綠色為一般水）。</li>
+                                <li>必須清楚標示內容物名稱及流向箭頭，以防維修或操作時發生誤判。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone 12 -->
+                <div class="bg-white border-t-4 border-teal-500 rounded shadow-md p-6 hover:shadow-lg transition flex flex-col">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-teal-50 rounded-full text-teal-600 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">GHS 主要危害圖式與分類</h4>
+                    </div>
+                    <div class="space-y-4 text-gray-600 text-sm leading-relaxed flex-1">
+                        <p class="mb-2 font-bold text-gray-800">常見核心圖式 (操作前必須辨識並防護)：</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-center my-4">
+                            <!-- Image 1: Flammable -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, -5)">
+                                    <path d="M50 30 Q45 45 35 55 Q25 65 35 75 Q45 85 50 80 Q55 85 65 75 Q75 65 65 55 Q55 45 50 30" fill="black"/>
+                                    <path d="M50 45 Q48 55 42 60 Q38 65 42 70 Q50 75 50 70 Q50 75 58 70 Q62 65 58 60 Q52 55 50 45" fill="white"/>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-red-600">易燃物</span>
+                                <span class="text-[10px] text-gray-500">物理性危害</span>
+                            </div>
+                            
+                            <!-- Image 2: Acute Toxicity -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, 0)">
+                                    <line x1="32" y1="65" x2="68" y2="35" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                                    <line x1="32" y1="35" x2="68" y2="65" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                                    <path d="M38 45 C38 33 62 33 62 45 C62 55 56 58 56 65 L44 65 C44 58 38 55 38 45 Z" fill="black"/>
+                                    <circle cx="45" cy="45" r="3" fill="white"/>
+                                    <circle cx="55" cy="45" r="3" fill="white"/>
+                                    <polygon points="50,50 48,53 52,53" fill="white"/>
+                                    <line x1="46" y1="65" x2="46" y2="60" stroke="white" stroke-width="1.5"/>
+                                    <line x1="50" y1="65" x2="50" y2="60" stroke="white" stroke-width="1.5"/>
+                                    <line x1="54" y1="65" x2="54" y2="60" stroke="white" stroke-width="1.5"/>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-purple-600">急毒性</span>
+                                <span class="text-[10px] text-gray-500">健康危害</span>
+                            </div>
+
+                            <!-- Image 3: Corrosive -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, 0)">
+                                    <!-- Metal Base -->
+                                    <rect x="25" y="65" width="22" height="6" fill="black" rx="1"/>
+                                    <path d="M33 65 C33 58 39 58 39 65" fill="white"/>
+                                    <!-- Hand Base -->
+                                    <path d="M53 68 C53 62 75 62 75 68 L75 73 C65 73 60 76 53 76 Z" fill="black"/>
+                                    <circle cx="62" cy="65" r="3" fill="white"/>
+                                    <!-- Left Tube -->
+                                    <g transform="rotate(-20 36 40)">
+                                       <path d="M32 25 L40 25 L40 50 C40 54 32 54 32 50 Z" fill="black"/>
+                                       <rect x="34" y="27" width="4" height="15" fill="white"/>
+                                       <circle cx="36" cy="60" r="2.5" fill="black"/>
+                                    </g>
+                                    <!-- Right Tube -->
+                                    <g transform="rotate(20 64 40)">
+                                       <path d="M60 25 L68 25 L68 50 C68 54 60 54 60 50 Z" fill="black"/>
+                                       <rect x="62" y="27" width="4" height="15" fill="white"/>
+                                       <circle cx="64" cy="60" r="2.5" fill="black"/>
+                                    </g>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-blue-600">腐蝕性</span>
+                                <span class="text-[10px] text-gray-500">物理/健康危害</span>
+                            </div>
+
+                            <!-- Image 4: Oxidizing -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, 0)">
+                                    <circle cx="50" cy="63" r="10" fill="none" stroke="black" stroke-width="5"/>
+                                    <path d="M50 35 Q45 45 40 50 Q35 55 40 60 Q50 55 50 50 Q50 55 60 60 Q65 55 60 50 Q55 45 50 35" fill="black"/>
+                                    <rect x="35" y="73" width="30" height="4" fill="black"/>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-yellow-600">氧化性</span>
+                                <span class="text-[10px] text-gray-500">物理性危害</span>
+                            </div>
+                            
+                            <!-- Image 5: Health Hazard -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, 2)">
+                                    <path d="M50 22 C43 22 38 27 38 34 C38 39 41 43 45 45 C35 49 30 62 30 77 L70 77 C70 62 65 49 55 45 C59 43 62 39 62 34 C62 27 57 22 50 22 Z" fill="black"/>
+                                    <path d="M50 42 L52 50 L60 50 L54 55 L56 63 L50 58 L44 63 L46 55 L40 50 L48 50 Z" fill="white"/>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-teal-600">健康危害</span>
+                                <span class="text-[10px] text-gray-500">致癌/致突變</span>
+                            </div>
+
+                            <!-- Image 6: Environmental Hazard -->
+                            <div class="flex flex-col items-center">
+                                <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-md mb-2">
+                                  <rect x="15" y="15" width="70" height="70" transform="rotate(45 50 50)" fill="white" stroke="#DC2626" stroke-width="6" stroke-linejoin="round"/>
+                                  <g transform="translate(0, 0)">
+                                    <!-- Tree -->
+                                    <path d="M35 75 L35 35 C35 25 45 25 45 35 M35 55 L55 40" stroke="black" stroke-width="4" stroke-linecap="round" fill="none"/>
+                                    <!-- Fish -->
+                                    <path d="M50 65 Q60 55 70 65 Q60 75 50 65" fill="black"/>
+                                    <polygon points="70,65 78,58 78,72" fill="black"/>
+                                    <!-- Ground -->
+                                    <path d="M25 80 L75 80 L75 84 L25 84 Z" fill="black"/>
+                                  </g>
+                                </svg>
+                                <span class="font-bold text-green-600">環境危害</span>
+                                <span class="text-[10px] text-gray-500">水生毒性</span>
+                            </div>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 mt-4 border-t border-gray-200 pt-3">
+                            <li><strong>操作規範：</strong> 嚴禁菸火、遠離熱源與不相容物質。</li>
+                            <li><strong>防護要求：</strong> 處理腐蝕或急毒性物質，必須穿著對應等級之化學防護衣、護目鏡與適配之呼吸防護具。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Interactive Simulator Section -->
+        <section class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden flex flex-col md:flex-row">
+            <div class="w-full md:w-1/3 p-6 bg-teal-50 border-r border-gray-200 flex flex-col">
+                <h3 class="text-2xl font-bold text-teal-800 mb-2">化工安全模擬器</h3>
+                <p class="text-gray-500 text-sm mb-6">操作面板體驗洩漏應變與入槽通風。</p>
+                
+                <div class="flex gap-2 mb-6 bg-teal-100 p-1 rounded">
+                    <button id="btn-sim-leak" onclick="switchSim('leak')" class="px-4 py-2 text-sm font-medium rounded bg-teal-600 text-white shadow transition w-1/2">管線洩漏應變</button>
+                    <button id="btn-sim-reactor" onclick="switchSim('reactor')" class="px-4 py-2 text-sm font-medium rounded text-teal-700 hover:text-teal-900 transition w-1/2">局限空間入槽</button>
+                </div>
+
+                <!-- Leak Controls -->
+                <div id="control-leak" class="space-y-4">
+                    <div class="bg-white p-4 rounded border border-gray-300">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-ppe" onchange="togglePPE(this.checked)" class="form-checkbox h-5 w-5 text-teal-600 rounded bg-white border-gray-400">
+                            <span class="text-gray-900 font-medium">穿戴化學防護衣與護目鏡 (PPE)</span>
+                        </label>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-gray-300 flex gap-2">
+                        <button onclick="toggleValve()" id="btn-valve" class="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded transition">關閉緊急遮斷閥 (ESDV)</button>
+                    </div>
+                    <p id="leak-status" class="text-red-600 font-bold animate-pulse text-sm">⚠ 警告：管線法蘭發生化學品洩漏！</p>
+                </div>
+
+                <!-- Reactor Controls -->
+                <div id="control-reactor" class="space-y-4" style="display: none;">
+                    <div class="bg-white p-4 rounded border border-gray-300">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-vent" onchange="toggleVentilation(this.checked)" class="form-checkbox h-5 w-5 text-teal-600 rounded bg-white border-gray-400">
+                            <span class="text-gray-900 font-medium">啟動強制通風換氣設備</span>
+                        </label>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-gray-300 flex gap-2">
+                        <button onclick="checkGas()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded active:scale-95 transition">執行四用氣體偵測</button>
+                    </div>
+                    <p id="reactor-status" class="text-red-600 font-bold text-sm">⚠ 槽內充滿殘留毒氣，禁止進入。</p>
+                </div>
+                
+                <div class="mt-auto pt-6">
+                    <p class="text-xs text-gray-400">※ 此為 2D 簡化演示，實際化工應變請依廠規及緊急應變計畫辦理。</p>
+                </div>
+            </div>
+            <div class="w-full md:w-2/3 h-[400px] md:h-auto bg-gray-900 relative overflow-hidden">
+                <canvas id="sim-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+        </section>
+
+        <!-- 3. Safety Quiz Section -->
+        <section id="quiz-section">
+            <h3 class="text-2xl font-bold text-teal-800 mb-6 flex items-center gap-2">
+                <span class="bg-teal-600 w-2 h-8 block"></span>
+                化工與製程安全線上測驗 (共 16 題)
+            </h3>
+            
+            <div class="bg-white rounded-lg p-6 md:p-10 shadow-md border border-gray-200">
+                <form id="quiz-form" onsubmit="handleQuizSubmit(event)">
+                    <div class="space-y-8">
+                        <!-- Q1 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">1. 關於化學品的安全資料表 (SDS)，最正確的管理方式為何？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q1" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 由廠長統一鎖在辦公室保險箱妥善保管。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q1" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 必須隨時更新，並放置於現場作業人員隨手可取得之處以供查閱。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q1" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 只要買來的時候看過一次就可以丟掉了。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">2. 輸送甲苯、酒精等易燃液體時，為防止產生靜電火花引發氣爆，最重要的防護措施是？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q2" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 輸送速度越快越好，減少接觸時間。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q2" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 只要穿著純棉衣服就不會起靜電。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q2" value="C" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>C. 管線、槽車與儲槽間必須確實進行等電位跨接 (Bonding) 與接地 (Grounding)。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">3. 於廠區內進行電銲動火作業前，進行氣體偵測時，可燃性氣體濃度通常必須低於爆炸下限 (LEL) 的多少才可施工？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q3" value="A" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>A. 嚴格低於 10% (或各廠規定的安全值內)。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q3" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 只要低於 50% 就不會馬上爆炸，可以施工。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q3" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 只要鼻子聞不到味道就可以施工。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q4 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">4. 準備拆卸含有殘留酸液的管線法蘭 (Flange) 時，鬆開螺絲的正確順序與姿勢為何？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q4" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 從正對著自己臉部的螺絲開始全速拆下。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q4" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 必須先從「背對自己」方向的螺絲稍微鬆開，確保若有殘壓噴濺，會朝向外側。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q4" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 把法蘭上所有的螺絲一次性用電動扳手打掉。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q5 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">5. 反應槽 (局限空間) 檢修進入前，除了清空內容物外，必須執行哪項最重要的安全措施？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q5" value="A" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>A. 插入盲板隔離管線、啟動強制通風、並完成四用氣體偵測 (含氧量測)。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q5" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 灑點香水去除異味即可。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q5" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 戴上一般的醫療口罩直接爬進去。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q6 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">6. 萬一作業中不慎遭強酸或強鹼大面積噴濺全身，第一時間的處置應為？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q6" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 趕快跑去醫務室找護理師擦藥膏。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q6" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 立即衝向緊急沖淋設備，褪去污染衣物，大量清水連續沖洗至少 15 分鐘。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q6" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 如果被酸噴到，就趕快拿鹼性液體來中和。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q7 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">7. 承上題，緊急沖淋與洗眼設備的設置位置規定，應距離高危害作業區多遠？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q7" value="A" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>A. 人員在 10 秒鐘 (約 15 公尺) 內可無障礙到達之處。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q7" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 只要廠區大門口有一個就可以了。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q7" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 只要廁所有水龍頭就可以代替，不限制距離。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q8 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">8. 執行設備維修前進行能源隔離 (LOTO，上鎖掛牌) 時，如果該設備由 3 位維修員共同作業，應如何上鎖？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q8" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 派最資深的一個人上一個鎖代表就好。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q8" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 使用多孔鎖扣，3 個人都必須掛上自己專屬的安全鎖與掛牌。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q8" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 貼一張紙條寫「維修中勿動」就可以，不用實體上鎖。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q9 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">9. 為防止化學槽破裂造成大量洩漏污染，儲槽區外圍設置的「防溢堤 (Dike)」容量標準為何？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q9" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 容量達到最大儲槽容量的 50% 即可。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q9" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 容量必須大於最大儲槽容量的 110%。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q9" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 只要周圍有挖排水溝讓液體流走就好，不需要防溢堤。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q10 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">10. 化驗室或工廠產生的廢液，為何絕對禁止將「強氧化劑 (如硝酸)」與「有機溶劑 (如丙酮)」倒進同一個廢液桶中？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q10" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 只是因為顏色混在一起不好看，不影響安全。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q10" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 兩者為禁忌物質，混合會引發劇烈放熱反應，甚至起火爆炸。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q10" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 會讓廢棄物處理公司不好提煉金屬。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q11 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">11. 當現場發生不明高濃度毒性氣體外洩時，應急處理人員必須配戴何種防護具才能進入熱區 (Hot Zone)？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q11" value="A" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>A. SCBA (自給式呼吸器) 及適當等級之化學防護衣。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q11" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 戴兩層 N95 口罩就可以。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q11" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 一般的防塵濾棉面罩。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q12 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">12. 廠區發生化學品大量洩漏散發毒氣時，一般人員聽到警報後，正確的疏散方向為何？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q12" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 順著風向跑，跟氣體比賽誰跑得快。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q12" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 往「上風處」或與風向垂直的方向疏散至安全集結點。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q12" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 留在原地把門窗關緊，絕對不要出去。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q13 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">13. 若發現同事在清洗反應槽時昏倒於槽內，身為外部監視人員的你第一時間應該怎麼做？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q13" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 馬上憋氣爬進去把他拉出來。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q13" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 跑去倒一杯水準備給他喝。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q13" value="C" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>C. 絕對禁止未著 SCBA 貿然進入。應立即啟動警報求救，利用救援絞盤(若有)拉起，或等待專業救援隊伍。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q14 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">14. 發現管線法蘭有化學液體滴漏時，現場人員的第一步正確反應是？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q14" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 用手摸摸看是什麼液體。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q14" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 立即通報，辨識危害，並在能力與安全許可下(穿著適當PPE)試圖關閉上游閥門或使用吸收棉圍堵。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q14" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 拿水管把它沖進水溝裡眼不見為淨。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q15 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">15. 廠區管線為方便辨識內容物及預防誤操作，通常會使用顏色區分。一般而言，「黃色」管線通常代表什麼性質的流體？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q15" value="A" class="form-radio text-teal-600 mt-1"> 
+                                    <span>A. 一般冷卻水。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q15" value="B" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>B. 易燃或可燃性物質。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q15" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 消防專用水。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q16 -->
+                        <div class="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                            <p class="text-lg text-gray-900 mb-3">16. 在化學品容器上看到一個「骷髏頭與交叉骨」的 GHS 危害圖示，代表該物質屬於何種危害特性？</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q16" value="A" class="form-radio text-teal-600 mt-1" required> 
+                                    <span>A. 具有急毒性 (Acute toxicity)，微量接觸、吸入或食入即可能致命。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q16" value="B" class="form-radio text-teal-600 mt-1"> 
+                                    <span>B. 具有氧化性，會釋放氧氣幫助燃燒。</span>
+                                </label>
+                                <label class="flex items-start gap-2 cursor-pointer text-gray-700 hover:text-gray-900">
+                                    <input type="radio" name="q16" value="C" class="form-radio text-teal-600 mt-1"> 
+                                    <span>C. 具有腐蝕性，會嚴重灼傷皮膚與眼睛。</span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200 flex justify-center">
+                        <button type="submit" class="px-10 py-3 bg-teal-600 text-white font-bold text-lg rounded hover:bg-teal-500 transition shadow-md">
+                            提交測驗 (Submit Quiz)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        
+        <footer class="text-center text-gray-500 text-sm pb-8">
+            &copy; 2024 化工安全網. All Rights Reserved. 示範教學用途。
+        </footer>
+    </main>
+
+    <!-- Modal: Message / Alert (Replacement for native alert) -->
+    <div id="msg-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-2xl max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="msg-modal-content">
+            <div id="msg-icon" class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl font-bold bg-red-100 text-red-600">
+                ✗
+            </div>
+            <h3 id="msg-title" class="text-xl font-bold text-gray-900 mb-2">錯誤</h3>
+            <p id="msg-text" class="text-gray-600 mb-6">發生錯誤。</p>
+            <button onclick="closeMsgModal()" class="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded font-medium transition">關閉</button>
+        </div>
+    </div>
+
+    <!-- Modal: E-Stop / Emergency Response (Chemical Spill) -->
+    <div id="estop-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-white border-4 border-red-600 rounded-lg shadow-[0_0_30px_rgba(220,38,38,0.5)] max-w-4xl w-full p-0 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-red-600 p-4 text-center shrink-0">
+                <h2 class="text-3xl font-black text-white uppercase tracking-widest flex items-center justify-center gap-3">
+                    <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    化學洩漏/火災緊急應變 SOP
+                </h2>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto space-y-6">
+                <div class="bg-stripes h-2 w-full rounded"></div>
+                
+                <p class="text-gray-700 text-sm md:text-base border-b border-gray-200 pb-4">
+                    當廠區發生危害性化學物質大量外洩、管線破裂起火、或有毒氣體擴散時，所有人員必須嚴格遵守以下防護與通報步驟，切勿盲目搶救。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-teal-50 p-5 rounded-lg border-l-4 border-red-500 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 text-9xl font-black text-red-500">1</div>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                            <h4 class="font-bold text-gray-900 text-xl">警報通報與辨識</h4>
+                        </div>
+                        <div class="space-y-2 text-gray-600 text-sm relative z-10">
+                            <p><strong class="text-gray-900">通報：</strong> 立即按下最近的手動火警/洩漏警報器。以對講機呼叫控制室 (Control Room)，說明地點、物質及洩漏規模。</p>
+                            <p><strong class="text-gray-900">辨識：</strong> 從安全距離觀察洩漏物質特徵（煙霧顏色、氣味、標示），切勿貿然靠近聞嗅。</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-teal-50 p-5 rounded-lg border-l-4 border-orange-500 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 text-9xl font-black text-orange-500">2</div>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                            <h4 class="font-bold text-gray-900 text-xl">上風處撤離與管制</h4>
+                        </div>
+                        <div class="space-y-2 text-gray-600 text-sm relative z-10">
+                            <p><strong class="text-gray-900">撤離：</strong> 現場非應變人員立即往<span class="text-red-600 font-bold">上風處 (Upwind)</span> 或側風向撤離至指定集結點。</p>
+                            <p><strong class="text-gray-900">管制：</strong> 拉起封鎖線設立冷區、暖區、熱區。嚴禁任何未穿戴相應等級 PPE 的人員進入熱區。</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-teal-50 p-5 rounded-lg border-l-4 border-amber-500 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 text-9xl font-black text-amber-500">3</div>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-black font-bold">3</div>
+                            <h4 class="font-bold text-gray-900 text-xl">著裝與初步防堵</h4>
+                        </div>
+                        <div class="space-y-2 text-gray-600 text-sm relative z-10">
+                            <p><strong class="text-gray-900">前提：</strong> 僅限受過訓練之應變小組 (ERT)，於穿戴完整防護具 (如 SCBA、A 級防護衣) 後方可執行。</p>
+                            <p><strong class="text-gray-900">防堵：</strong> 嘗試關閉洩漏源頭上游閥門 (ESDV)。使用吸油索或沙包圍堵，<span class="text-red-600 font-bold">絕對防止化學品流入雨水溝</span>造成環保浩劫。</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-teal-50 p-5 rounded-lg border-l-4 border-green-500 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 text-9xl font-black text-green-500">4</div>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">4</div>
+                            <h4 class="font-bold text-gray-900 text-xl">除污與外部支援</h4>
+                        </div>
+                        <div class="space-y-2 text-gray-600 text-sm relative z-10">
+                            <p><strong class="text-gray-900">支援：</strong> 若事態無法控制，立即通報 119 毒災應變隊，並提供 SDS 供消防人員參考。</p>
+                            <p><strong class="text-gray-900">除污：</strong> 從熱區撤出的應變人員及傷患，必須在暖區經過「除污走廊」沖洗去毒後，才可送醫或進入安全區。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200">
+                    <button onclick="toggleModal('estop-modal')" class="w-full py-4 bg-gray-200 text-gray-900 font-bold rounded-lg hover:bg-gray-300 transition uppercase tracking-widest border border-gray-300 shadow-md text-lg">
+                        我已熟讀並了解化災緊急應變 SOP (關閉)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Modal Handlers
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if(modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function showMsg(title, text, isSuccess = false) {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-text').innerText = text;
+            const icon = document.getElementById('msg-icon');
+            const content = document.getElementById('msg-modal-content');
+            
+            if(isSuccess) {
+                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl font-bold bg-green-100 text-green-600';
+                icon.innerText = '✓';
+            } else {
+                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl font-bold bg-red-100 text-red-600';
+                icon.innerText = '✗';
+            }
+
+            const modal = document.getElementById('msg-modal');
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeMsgModal() {
+            const modal = document.getElementById('msg-modal');
+            const content = document.getElementById('msg-modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Quiz Logic for Chemical Safety
+        function handleQuizSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Correct answers for Chemical Safety
+            const answers = {
+                q1: 'B', q2: 'C', q3: 'A', q4: 'B', q5: 'A',
+                q6: 'B', q7: 'A', q8: 'B', q9: 'B', q10: 'B',
+                q11: 'A', q12: 'B', q13: 'C', q14: 'B', q15: 'B', q16: 'A'
+            };
+
+            let score = 0;
+            let allAnswered = true;
+            for(let key in answers) {
+                if(!formData.get(key)) {
+                    allAnswered = false;
+                } else if(formData.get(key) === answers[key]) {
+                    score++;
+                }
+            }
+
+            if(!allAnswered) {
+                showMsg('注意', '請回答所有的問題才能送出測驗。');
+                return;
+            }
+
+            if(score === 16) {
+                showMsg('測驗通過', '恭喜您獲得滿分！您已具備化工廠核心製程安全知識。', true);
+            } else {
+                let finalScore = Math.round((score / 16) * 100);
+                showMsg('測驗未通過', `您的得分為 ${finalScore} 分。必須達到 100 分 (全對) 才能算合格。請重新複習上方規範。`, false);
+            }
+        }
+
+        // --- Canvas Simulator Logic (Chemical Theme) ---
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Simulation State
+        let currentSim = 'leak'; // 'leak' or 'reactor'
+        let animationId;
+        
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        // --- Leak Simulator Variables ---
+        let hasPPE = false;
+        let valveOpen = true;
+        let droplets = [];
+        let puddleWidth = 0;
+
+        // --- Reactor Simulator Variables ---
+        let isVentOn = false;
+        let gasParticles = [];
+        let gasConcentration = 100; // 0 to 100
+        
+        function switchSim(type) {
+            currentSim = type;
+            
+            // UI Toggle
+            document.getElementById('btn-sim-leak').className = type === 'leak' 
+                ? 'px-4 py-2 text-sm font-medium rounded bg-teal-600 text-white shadow transition w-1/2' 
+                : 'px-4 py-2 text-sm font-medium rounded text-teal-700 hover:text-teal-900 transition w-1/2';
+                
+            document.getElementById('btn-sim-reactor').className = type === 'reactor' 
+                ? 'px-4 py-2 text-sm font-medium rounded bg-teal-600 text-white shadow transition w-1/2' 
+                : 'px-4 py-2 text-sm font-medium rounded text-teal-700 hover:text-teal-900 transition w-1/2';
+                
+            document.getElementById('control-leak').style.display = type === 'leak' ? 'block' : 'none';
+            document.getElementById('control-reactor').style.display = type === 'reactor' ? 'block' : 'none';
+
+            // Reset states Leak
+            hasPPE = false;
+            valveOpen = true;
+            document.getElementById('chk-ppe').checked = false;
+            document.getElementById('btn-valve').innerText = "關閉緊急遮斷閥 (ESDV)";
+            document.getElementById('btn-valve').className = "flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded transition";
+            droplets = [];
+            puddleWidth = 0;
+            updateLeakStatus();
+
+            // Reset states Reactor
+            isVentOn = false;
+            gasConcentration = 100;
+            gasParticles = [];
+            document.getElementById('chk-vent').checked = false;
+            for(let i=0; i<80; i++) {
+                gasParticles.push({
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 150 - 50,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    life: Math.random()
+                });
+            }
+            updateReactorStatus(false);
+        }
+
+        // Leak Handlers
+        function togglePPE(val) {
+            hasPPE = val;
+            updateLeakStatus();
+        }
+
+        function toggleValve() {
+            valveOpen = !valveOpen;
+            const btn = document.getElementById('btn-valve');
+            if(!valveOpen) {
+                btn.innerText = "開啟閥門 (恢復流動)";
+                btn.className = "flex-1 py-2 bg-gray-500 hover:bg-gray-400 text-white font-bold rounded transition";
+            } else {
+                btn.innerText = "關閉緊急遮斷閥 (ESDV)";
+                btn.className = "flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded transition";
+            }
+            updateLeakStatus();
+        }
+
+        function updateLeakStatus() {
+            const status = document.getElementById('leak-status');
+            if(!valveOpen) {
+                status.innerText = "✓ 閥門已關閉，洩漏已受控制。";
+                status.className = "text-green-600 font-bold text-sm";
+            } else if (hasPPE) {
+                status.innerText = "⚠ 管線洩漏中！您已穿戴 PPE，可安全靠近處置。";
+                status.className = "text-amber-500 font-bold text-sm";
+            } else {
+                status.innerText = "⚠ 警告：管線法蘭發生化學品洩漏！未穿戴防護具嚴禁靠近！";
+                status.className = "text-red-600 font-bold animate-pulse text-sm";
+            }
+        }
+
+        // Reactor Handlers
+        function toggleVentilation(val) {
+            isVentOn = val;
+        }
+
+        function checkGas() {
+            if(gasConcentration < 10) {
+                showMsg('偵測通過', '氧氣濃度正常，危害氣體濃度 < 10% LEL，符合入槽標準。', true);
+            } else {
+                showMsg('偵測未通過', `危害氣體濃度過高 (殘存 ${Math.round(gasConcentration)}%)，請持續通風。`, false);
+            }
+        }
+
+        function updateReactorStatus(isSafe) {
+            const status = document.getElementById('reactor-status');
+            if(isSafe) {
+                status.innerText = "✓ 通風完成，請執行氣體偵測確認。";
+                status.className = "text-green-600 font-bold text-sm";
+            } else {
+                status.innerText = "⚠ 槽內充滿殘留毒氣，禁止進入。";
+                status.className = "text-red-600 font-bold text-sm";
+            }
+        }
+
+        // --- Drawing Functions ---
+
+        function drawLeak() {
+            const cx = canvas.width / 2;
+            const groundY = canvas.height - 40;
+            
+            // Background
+            ctx.fillStyle = '#111827'; // dark background for chemical plant
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ground
+            ctx.fillStyle = '#374151';
+            ctx.fillRect(0, groundY, canvas.width, 40);
+            
+            // Draw Pipe and Flange
+            ctx.fillStyle = '#9CA3AF'; // metallic pipe
+            ctx.fillRect(cx - 150, groundY - 150, 140, 40); // left pipe
+            ctx.fillRect(cx + 10, groundY - 150, 140, 40); // right pipe
+            
+            // Flange
+            ctx.fillStyle = '#6B7280';
+            ctx.fillRect(cx - 15, groundY - 170, 10, 80);
+            ctx.fillRect(cx + 5, groundY - 170, 10, 80);
+            
+            // Valve (on right pipe)
+            ctx.fillStyle = '#D1D5DB';
+            ctx.beginPath(); ctx.moveTo(cx + 80, groundY - 170); ctx.lineTo(cx + 60, groundY - 130); ctx.lineTo(cx + 100, groundY - 130); ctx.fill();
+            // Valve Handle
+            ctx.strokeStyle = valveOpen ? '#EF4444' : '#10B981'; // red open, green closed
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(cx + 80, groundY - 170);
+            if(valveOpen) {
+                ctx.lineTo(cx + 80, groundY - 200); // vertical
+            } else {
+                ctx.lineTo(cx + 110, groundY - 170); // horizontal
+            }
+            ctx.stroke();
+
+            // Leak Logic
+            if(valveOpen) {
+                if(Math.random() < 0.3) {
+                    droplets.push({ x: cx, y: groundY - 130, vy: 0 });
+                }
+                if(puddleWidth < 150) puddleWidth += 0.5;
+            }
+
+            // Draw Droplets
+            ctx.fillStyle = '#10B981'; // toxic green liquid
+            for(let i=droplets.length-1; i>=0; i--) {
+                let d = droplets[i];
+                d.vy += 0.5; // gravity
+                d.y += d.vy;
+                
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, 4, 0, Math.PI*2);
+                ctx.fill();
+                
+                if(d.y > groundY) {
+                    droplets.splice(i, 1);
+                }
+            }
+            
+            // Draw Puddle
+            if(puddleWidth > 0) {
+                ctx.beginPath();
+                ctx.ellipse(cx, groundY + 5, puddleWidth, puddleWidth/4, 0, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            // Draw Operator
+            let opX = cx - 120;
+            let opY = groundY - 80;
+            
+            if(hasPPE) {
+                // Hazmat suit
+                ctx.fillStyle = '#FBBF24'; // Yellow suit
+                ctx.fillRect(opX-15, opY, 30, 50); // body
+                ctx.beginPath(); ctx.arc(opX, opY-15, 18, 0, Math.PI*2); ctx.fill(); // hood
+                ctx.fillStyle = '#111827'; // visor
+                ctx.fillRect(opX+5, opY-25, 12, 16);
+            } else {
+                // Normal uniform
+                ctx.fillStyle = '#2563EB'; // Blue uniform
+                ctx.fillRect(opX-10, opY, 20, 50); // body
+                ctx.fillStyle = '#FCA5A5'; // skin
+                ctx.beginPath(); ctx.arc(opX, opY-15, 12, 0, Math.PI*2); ctx.fill(); // head
+                ctx.fillStyle = '#FBBF24'; // hardhat
+                ctx.beginPath(); ctx.arc(opX, opY-18, 14, Math.PI, 0); ctx.fill();
+            }
+
+            // Danger effect if no PPE and valve open
+            if(valveOpen && !hasPPE) {
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawReactor() {
+            const cx = canvas.width / 2;
+            const groundY = canvas.height - 30;
+            
+            // Background
+            ctx.fillStyle = '#1F2937';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ground
+            ctx.fillStyle = '#4B5563';
+            ctx.fillRect(0, groundY, canvas.width, 30);
+
+            // Draw Reactor Tank
+            ctx.fillStyle = '#9CA3AF'; // Tank body
+            ctx.beginPath();
+            ctx.arc(cx, groundY - 120, 100, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#1F2937'; // inner hollow
+            ctx.beginPath();
+            ctx.arc(cx, groundY - 120, 90, 0, Math.PI*2);
+            ctx.fill();
+
+            // Manhole Top
+            ctx.fillStyle = '#6B7280';
+            ctx.fillRect(cx - 30, groundY - 240, 60, 30);
+            ctx.fillStyle = '#1F2937'; // hole
+            ctx.fillRect(cx - 20, groundY - 240, 40, 30);
+
+            // Ventilation Fan (Right side)
+            ctx.fillStyle = '#4B5563';
+            ctx.fillRect(cx + 70, groundY - 200, 40, 40); // fan housing
+            ctx.fillStyle = isVentOn ? '#10B981' : '#EF4444'; // indicator light
+            ctx.beginPath(); ctx.arc(cx + 90, groundY - 210, 5, 0, Math.PI*2); ctx.fill();
+            
+            if(isVentOn) {
+                // Fan blades rotating
+                ctx.save();
+                ctx.translate(cx + 90, groundY - 180);
+                ctx.rotate(Date.now() / 50);
+                ctx.fillStyle = '#D1D5DB';
+                ctx.fillRect(-15, -2, 30, 4);
+                ctx.fillRect(-2, -15, 4, 30);
+                ctx.restore();
+
+                // Reduce gas concentration
+                if(gasConcentration > 0) gasConcentration -= 0.3;
+                if(gasConcentration < 0) gasConcentration = 0;
+            }
+
+            // Draw Gas Particles
+            ctx.fillStyle = `rgba(167, 139, 250, ${gasConcentration / 100})`; // purple gas
+            for(let p of gasParticles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                // bounce inside tank
+                let dist = Math.sqrt(p.x*p.x + p.y*p.y);
+                if(dist > 80) {
+                    p.vx *= -1;
+                    p.vy *= -1;
+                }
+                
+                if(gasConcentration > 5) {
+                    ctx.beginPath();
+                    ctx.arc(cx + p.x, groundY - 120 + p.y, 15, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+
+            // Status Update Logic
+            if(gasConcentration < 10) {
+                updateReactorStatus(true);
+            } else {
+                updateReactorStatus(false);
+            }
+
+            // Draw Gas Detector line if checking
+            // Visual element representing the probe
+            ctx.strokeStyle = '#F59E0B';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, groundY - 260);
+            ctx.lineTo(cx, groundY - 150);
+            ctx.stroke();
+            ctx.fillStyle = '#EF4444';
+            ctx.fillRect(cx - 5, groundY - 270, 10, 10); // meter box
+
+            // Overlay text
+            ctx.fillStyle = '#FFF';
+            ctx.font = "14px Inter";
+            ctx.textAlign = "center";
+            ctx.fillText(`槽內殘留有害濃度: ${Math.round(gasConcentration)}%`, cx, groundY - 10);
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (currentSim === 'leak') {
+                drawLeak();
+            } else if (currentSim === 'reactor') {
+                drawReactor();
+            }
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Init
+        window.onload = () => {
+            resizeCanvas();
+            switchSim('leak'); // default init
+            gameLoop();
+        };
+
+    </script>
+</body>
+</html>
